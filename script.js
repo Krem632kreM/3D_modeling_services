@@ -45,48 +45,36 @@ window.addEventListener('DOMContentLoaded', function () {
 });
 
 const toogleMenu = () => {
-    const btnMenu = document.querySelector('.menu'),
-        menu = document.querySelector('menu'),
-        closeBtn = document.querySelector('.close-btn'),
-        menuItems = menu.querySelectorAll('ul > li');
+    const menu = document.querySelector('menu');
+
     const handlerMenu = () => {
         menu.classList.toggle('active-menu');
     }
-    btnMenu.addEventListener('click', handlerMenu);
 
-    closeBtn.addEventListener('click', handlerMenu);
-    menuItems.forEach(elem => elem.addEventListener('click', handlerMenu));
-
-    for (let menuItem of menuItems) {
-        menuItem.addEventListener('click', function (e) {
-            e.preventDefault()
-            console.log(menuItem)
-
-            const blockID = menuItem.querySelector('a').getAttribute('href').substr(1)
-
+    document.body.addEventListener('click', (event) => {
+        let target = event.target
+        console.dir(target)
+        if(target.closest('.menu') || target.classList.contains('close-btn') ){handlerMenu();}
+    
+        if((target.localName === 'a' && target.parentNode.parentNode.parentNode.localName === "menu") || (target.localName === 'img' && target.parentNode.parentNode.localName === "main")) {
+            target = target.closest('a')
+            event.preventDefault()
+            handlerMenu();
+            const blockID = target.getAttribute('href').substr(1)
+            console.log(blockID)
             document.getElementById(blockID).scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
             })
-        })
-    }
-}
-
-document.querySelector('a').addEventListener('click', (e) => {
-    e.preventDefault()
-    const blockID = document.querySelector('a').getAttribute('href').substr(1)
-    document.getElementById(blockID).scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+        }
     })
-})
+}
 
 toogleMenu();
 
 const togglePopUp = () => {
     const popup = document.querySelector('.popup'),
         popupBtn = document.querySelectorAll('.popup-btn'),
-        popupClose = document.querySelector('.popup-close'),
         popupContent = popup.querySelector('.popup-content');
 
 
@@ -117,9 +105,50 @@ const togglePopUp = () => {
         })
     })
 
-    popupClose.addEventListener('click', () => {
-        popup.style.display = 'none';
+    popup.addEventListener('click',  ()=>{
+        let target = event.target
+
+        if(target.classList.contains('popup-close')) {
+            popup.style.display = 'none';
+        } else {
+            target = target.closest('.popup-content')
+        }
+        if (!target) {
+        
+        }
     })
 }
 
 togglePopUp();
+
+//табы
+
+const tabs = () => {
+    const tabHeader = document.querySelector('.service-header'),
+    tab = tabHeader.querySelectorAll('.service-header-tab'),
+    tabContent = document.querySelectorAll('.service-tab');
+
+    const toggleTabContent = (index) => {
+        for(let i=0; i< tabContent.length; i++) {
+            if(index === i) {
+                tab[i].classList.add('active')
+                tabContent[i].classList.remove('d-none');
+            } else {
+                tab[i].classList.remove('active')
+                tabContent[i].classList.add('d-none');
+            }
+        }
+    };
+
+    tabHeader.addEventListener('click', (event) => {
+        let target = event.target;
+        if (target) {
+        target = target.closest('.service-header-tab');
+            tab.forEach((item, i) => {
+                if(item === target) toggleTabContent(i)
+            });
+        }
+    })
+}
+
+tabs();
