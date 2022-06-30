@@ -53,13 +53,16 @@ const toogleMenu = () => {
 
     document.body.addEventListener('click', (event) => {
         let target = event.target
-        console.dir(target)
-        if(target.closest('.menu') || target.classList.contains('close-btn') ){handlerMenu();}
-    
-        if((target.localName === 'a' && target.parentNode.parentNode.parentNode.localName === "menu") || (target.localName === 'img' && target.parentNode.parentNode.localName === "main")) {
+        if (target.closest('.menu') || target.classList.contains('close-btn')) {
+            handlerMenu();
+        }
+
+        if (!target.closest('.menu')) {
+            menu.classList.remove('active-menu');
+        }
+        if ((target.localName === 'a' && target.parentNode.parentNode.parentNode.localName === "menu") || (target.localName === 'img' && target.parentNode.parentNode.localName === "main")) {
             target = target.closest('a')
             event.preventDefault()
-            handlerMenu();
             const blockID = target.getAttribute('href').substr(1)
             console.log(blockID)
             document.getElementById(blockID).scrollIntoView({
@@ -105,16 +108,16 @@ const togglePopUp = () => {
         })
     })
 
-    popup.addEventListener('click',  ()=>{
+    popup.addEventListener('click', () => {
         let target = event.target
 
-        if(target.classList.contains('popup-close')) {
+        if (target.classList.contains('popup-close')) {
             popup.style.display = 'none';
         } else {
             target = target.closest('.popup-content')
         }
         if (!target) {
-        
+            popup.style.display = 'none';
         }
     })
 }
@@ -125,12 +128,12 @@ togglePopUp();
 
 const tabs = () => {
     const tabHeader = document.querySelector('.service-header'),
-    tab = tabHeader.querySelectorAll('.service-header-tab'),
-    tabContent = document.querySelectorAll('.service-tab');
+        tab = tabHeader.querySelectorAll('.service-header-tab'),
+        tabContent = document.querySelectorAll('.service-tab');
 
     const toggleTabContent = (index) => {
-        for(let i=0; i< tabContent.length; i++) {
-            if(index === i) {
+        for (let i = 0; i < tabContent.length; i++) {
+            if (index === i) {
                 tab[i].classList.add('active')
                 tabContent[i].classList.remove('d-none');
             } else {
@@ -143,12 +146,112 @@ const tabs = () => {
     tabHeader.addEventListener('click', (event) => {
         let target = event.target;
         if (target) {
-        target = target.closest('.service-header-tab');
+            target = target.closest('.service-header-tab');
             tab.forEach((item, i) => {
-                if(item === target) toggleTabContent(i)
+                if (item === target) toggleTabContent(i)
             });
         }
     })
 }
 
 tabs();
+
+//сладйер
+
+
+const slider = () => {
+    const slide = document.querySelectorAll('.portfolio-item'),
+        btn = document.querySelectorAll('.portfolio-btn'),
+        portfolioDots = document.querySelector('.portfolio-dots');
+    let li;
+
+    for (let i = 0; i < slide.length; i++) {
+        li = document.createElement("li")
+        li.classList.add('dot');
+        portfolioDots.append(li)
+    }
+
+    const dot = document.querySelectorAll('.dot'),
+        slider = document.querySelector('.portfolio-content');
+
+
+    let currentSlide = 0,
+        internal; //номер слайда
+
+    const f = `<li class="dot"></li>`
+
+    const prevSlide = (elem, index, strClass) => {
+        elem[index].classList.remove(strClass)
+    }
+
+    const nextSlide = (elem, index, strClass) => {
+        elem[index].classList.add(strClass)
+    }
+
+    const autoPlaySlide = () => {
+        prevSlide(slide, currentSlide, 'portfolio-item-active')
+        prevSlide(dot, currentSlide, 'dot-active')
+        currentSlide++
+
+        if (currentSlide >= slide.length) currentSlide = 0;
+
+        nextSlide(slide, currentSlide, 'portfolio-item-active')
+        nextSlide(dot, currentSlide, 'dot-active')
+
+    };
+
+    const startSlide = (time = 3000) => {
+        interval = setInterval(autoPlaySlide, time)
+    };
+
+    const stopSlide = () => {
+        clearInterval(interval);
+
+    };
+
+    slider.addEventListener('click', (event) => {
+        console.log(event)
+        event.preventDefault();
+        let target = event.target;
+        if (!target.matches('.portfolio-btn, .dot')) {
+            return;
+        }
+
+        prevSlide(slide, currentSlide, 'portfolio-item-active')
+        prevSlide(dot, currentSlide, 'dot-active')
+
+        if (target.matches('#arrow-right')) {
+            currentSlide++
+        } else if (target.matches('#arrow-left')) {
+            currentSlide--
+        } else if (target.matches('.dot')) {
+            dot.forEach((item, index) => {
+                if (item === target) {
+                    currentSlide = index
+                }
+            });
+        }
+
+        if (currentSlide >= slide.length) {
+            currentSlide = 0;
+        }
+        if (currentSlide < 0) currentSlide = slide.length - 1
+        nextSlide(slide, currentSlide, 'portfolio-item-active')
+        nextSlide(dot, currentSlide, 'dot-active')
+    })
+
+    autoPlaySlide();
+    startSlide(1500);
+    slider.addEventListener('mouseover', (event) => {
+        if (event.target.matches('.portfolio-btn') || event.target.matches('.dot')) {
+            stopSlide();
+        }
+    })
+
+    slider.addEventListener('mouseout', (event) => {
+        if (event.target.matches('.portfolio-btn') || event.target.matches('.dot')) {
+            startSlide();
+        }
+    })
+}
+slider();
